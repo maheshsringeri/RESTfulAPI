@@ -1,13 +1,14 @@
-using RESTfulAPI.Logging;
-using Serilog;
+using RESTfulAPI.Data;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-                            .WriteTo.File("log.VillaLogs.txt", rollingInterval: RollingInterval.Day).CreateLogger();
+builder.Services.AddDbContext<ApplicationDbContext>(option =>
+{
+    option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSQLConnection"));
 
-//builder.Host.UseSerillog();
+});
 // Add services to the container.
 
 builder.Services.AddControllers(option => { option.ReturnHttpNotAcceptable = true; })
@@ -17,7 +18,7 @@ builder.Services.AddControllers(option => { option.ReturnHttpNotAcceptable = tru
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ILogging, LoggingV2>();
+
 
 var app = builder.Build();
 
